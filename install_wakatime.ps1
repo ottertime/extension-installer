@@ -20,7 +20,15 @@ api_key = $apiKey
 api_url = $apiUrl
 "@
 
-Write-Host ("**Welcome to Quackatime!**" | ConvertFrom-Markdown -AsVT100EncodedString).VT100EncodedString 
+# Not all terminals support the bold style. Instead of erroring on these terminals, just display plain text.
+try {
+    $markdown = "**Welcome to Quackatime!**"
+    $styled = ($markdown | ConvertFrom-Markdown -AsVT100EncodedString).VT100EncodedString
+    Write-Host $styled
+} catch {
+    Write-Host "Welcome to Quackatime!"
+}
+Write-Host "If you have any issues with this script, please file an issue at https://github.com/quackatime/extension-installer/issues." -ForegroundColor DarkGray
 
 Set-Content -Path $configPath -Value $configContent
 Write-Host "✓ Wrote WakaTime config!" -ForegroundColor Green
