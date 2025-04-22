@@ -1,151 +1,83 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-#####################################
-# WakaTime Extensions Installer
-# This script installs WakaTime plugins for VSCode and JetBrains IDEs
-#####################################
-
-echo "Starting WakaTime extensions installation..."
-
-#####################################
-# Utility Functions
-#####################################
-
-# Function to check if a command exists
-# Args:
-#   $1 - Command to check
-# Returns: 0 if exists, 1 if not
-command_exists() {
-    command -v "$1" >/dev/null 2>&1
-}
-
-# Function to print colored output
-# Args:
-#   $1 - Color (green/red/yellow)
-#   $2 - Message to print
-print_status() {
-    local color=$1
-    local message=$2
-    case $color in
-        "green")  echo -e "\033[32m$message\033[0m" ;;
-        "red")    echo -e "\033[31m$message\033[0m" ;;
-        "yellow") echo -e "\033[33m$message\033[0m" ;;
-    esac
-}
-
-#####################################
-# VSCode Installation
-#####################################
-
-# Install WakaTime extension for VSCode
-# Checks if VSCode is installed and installs the extension
-install_vscode() {
-    if command_exists code; then
-        print_status "yellow" "Installing WakaTime for VSCode..."
-        code --install-extension WakaTime.vscode-wakatime
-        if [ $? -eq 0 ]; then
-            print_status "green" "✓ WakaTime installed successfully for VSCode"
-        else
-            print_status "red" "✗ Failed to install WakaTime for VSCode"
-        fi
-    else
-        print_status "yellow" "VSCode not found. Skipping VSCode extension installation."
-    fi
-}
-
-#####################################
-# JetBrains Installation
-#####################################
-
-# Install WakaTime plugin for JetBrains IDEs
-# Detects installed JetBrains IDEs and installs the plugin
-install_jetbrains() {
-    print_status "yellow" "Installing WakaTime for JetBrains IDEs..."
-    
-    # List of supported JetBrains IDEs config directories
-    declare -a ide_dirs=(
-        ".IntelliJIdea"  # IntelliJ IDEA
-        ".CLion"        # CLion
-        ".PyCharm"      # PyCharm
-        ".WebStorm"     # WebStorm
-        ".PhpStorm"     # PhpStorm
-        ".RubyMine"     # RubyMine
-        ".GoLand"       # GoLand
-        ".Rider"        # Rider
-    )
-    
-    # Process each IDE
-    for ide in "${ide_dirs[@]}"; do
-        if [ -d "$HOME/$ide"* ]; then
-            # Find the latest version directory
-            config_dir=$(find "$HOME/$ide"* -maxdepth 0 -type d | sort -V | tail -n 1)
-            
-            if [ -n "$config_dir" ]; then
-                plugin_dir="$config_dir/config/plugins"
-                mkdir -p "$plugin_dir"
-                
-                # Download and install WakaTime plugin
-                print_status "yellow" "Installing for $(basename "$config_dir")..."
-                curl -fsSL -o "$plugin_dir/wakatime.zip" https://plugins.jetbrains.com/plugin/download?updateId=latest&pluginId=7425
-                
-                if [ $? -eq 0 ]; then
-                    cd "$plugin_dir" && unzip -o wakatime.zip && rm wakatime.zip
-                    print_status "green" "✓ WakaTime installed successfully for $(basename "$config_dir")"
-                else
-                    print_status "red" "✗ Failed to install WakaTime for $(basename "$config_dir")"
-                fi
-            fi
-        fi
-    done
-}
-
-#####################################
-# WakaTime Configuration
-#####################################
-
-# Configure WakaTime settings
-configure_wakatime() {
-    print_status "yellow" "Configuring WakaTime settings..."
-    
-    # Get user's home directory and config path
-    CONFIG_PATH="$HOME/.wakatime.cfg"
-    
-    # Check for required environment variables
-    if [ -z "$QUACKATIME_API_KEY" ] || [ -z "$QUACKATIME_API_URL" ]; then
-        print_status "red" "Error: QUACKATIME_API_KEY and QUACKATIME_API_URL environment variables must be set."
-        return 1
-    fi
-    
-    # Create or update WakaTime configuration
-    cat > "$CONFIG_PATH" << EOL
-[settings]
-api_key = $QUACKATIME_API_KEY
-api_url = $QUACKATIME_API_URL
-EOL
-    
-    if [ $? -eq 0 ]; then
-        print_status "green" "✓ WakaTime configuration has been updated successfully"
-    else
-        print_status "red" "✗ Failed to write WakaTime configuration file"
-        return 1
-    fi
-}
-
-#####################################
-# Main Installation Process
-#####################################
-
-echo "=== WakaTime Extensions Installer ==="
+echo -e "\e[1mWelcome to Quackatime!\e[0m"
+echo -e "If you have any issues with this script, please file an issue at \e[4mhttps://github.com/quackatime/extension-installer/issues\e[0m"
 echo
 
-# Install extensions for each supported IDE
-install_vscode
-install_jetbrains
+# Extension/Plugin identifiers
+VSCODE_EXT="WakaTime.vscode-wakatime"
+JETBRAINS_PID="com.wakatime.intellij.plugin"
 
-# Configure WakaTime settings
-configure_wakatime
+# Get WakaTime config from env vars
+API_KEY="${QUACKATIME_API_KEY:-}"
+API_URL="${QUACKATIME_API_URL:-}"
 
-# Display completion message and next steps
-echo ""
-print_status "green" "Installation process completed!"
-print_status "yellow" "Note: You may need to restart your IDEs for the changes to take effect."
+# Exit if required env vars are not set
+if [[ -z "$API_KEY" || -z "$API_URL" ]]; then
+  echo -e "\e[31mError: QUACKATIME_API_KEY and QUACKATIME_API_URL must be set\e[0m"
+  exit 1
+fi
+
+# Create ~/.wakatime.cfg
+CONFIG_PATH="$HOME/.wakatime.cfg"
+cat > "$CONFIG_PATH" <<EOF
+[settings]
+api_key = $API_KEY
+api_url = $API_URL
+EOF
+
+echo -e "\e[32m✓ Wrote WakaTime config to $CONFIG_PATH\e[0m"
+
+# Helper to install in VSCode-based editors
+install_vscode_ext() {
+  local cmd="$1"; shift
+  if command -v "$cmd" >/dev/null 2>&1; then
+    echo -e "\n\e[32m→ Installing WakaTime for $cmd...\e[0m"
+    "$cmd" --install-extension "$VSCODE_EXT" --force
+  else
+    echo -e "\e[90m$cmd CLI not found; skipping.\e[0m"
+  fi
+}
+
+# 1. VSCode
+install_vscode_ext code
+
+# 2. Trae AI
+install_vscode_ext trae
+
+# 3. Cursor
+install_vscode_ext cursor
+
+# 4. Windsurf
+install_vscode_ext windsurf
+
+# 5. JetBrains IDEs
+JETBRAINS_EXES=(
+  idea       # IntelliJ IDEA
+  pycharm    # PyCharm
+  clion      # CLion
+  goland     # GoLand
+  webstorm   # WebStorm
+  rider      # Rider
+  datagrip   # DataGrip
+  phpstorm   # PhpStorm
+  rubymine   # RubyMine
+  appcode    # AppCode
+)
+
+found_jetbrains=false
+for exe in "${JETBRAINS_EXES[@]}"; do
+  if command -v "$exe" >/dev/null 2>&1; then
+    found_jetbrains=true
+    echo -e "\n\e[32m→ Installing WakaTime plugin in $exe...\e[0m"
+    "$exe" installPlugins "$JETBRAINS_PID"
+  fi
+done
+
+if ! $found_jetbrains; then
+  echo -e "\e[90mNo JetBrains IDEs found; skipping.\e[0m"
+fi
+
+echo -e "\n\e[32m✓ Installation complete!\e[0m"
+echo "Please restart your editors/IDEs for changes to take effect."
