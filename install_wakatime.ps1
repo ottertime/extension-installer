@@ -28,7 +28,7 @@ try {
 } catch {
     Write-Host "Welcome to Quackatime!"
 }
-Write-Host "If you have any issues with this script, please file an issue at https://github.com/quackatime/extension-installer/issues." -ForegroundColor DarkGray
+Write-Host "If you have any issues with this script, please file an issue at https://github.com/quackatime/extension-installer/issues.`n" -ForegroundColor DarkGray
 
 Set-Content -Path $configPath -Value $configContent
 Write-Host "✓ Wrote WakaTime config!" -ForegroundColor Green
