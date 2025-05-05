@@ -3,12 +3,12 @@ $vscodeExt = "WakaTime.vscode-wakatime"
 $jetbrainsPid = "com.wakatime.intellij.plugin"
 
 # Get WakaTime configuration from environment variables
-$apiKey = $env:QUACKATIME_API_KEY
-$apiUrl = $env:QUACKATIME_API_URL
+$apiKey = $env:OTTERTIME_API_KEY
+$apiUrl = $env:OTTERTIME_API_URL
 
 # Exit if required environment variables are not set
 if (-not $apiKey -or -not $apiUrl) {
-    Write-Host "Error: QUACKATIME_API_KEY and QUACKATIME_API_URL environment variables must be set" -ForegroundColor Red
+    Write-Host "Error: OTTERTIME_API_KEY and OTTERTIME_API_URL environment variables must be set" -ForegroundColor Red
     exit 1
 }
 
@@ -22,13 +22,13 @@ api_url = $apiUrl
 
 # Not all terminals support the bold style. Instead of erroring on these terminals, just display plain text.
 try {
-    $markdown = "**Welcome to Quackatime!**"
+    $markdown = "**Welcome to OtterTime!**"
     $styled = ($markdown | ConvertFrom-Markdown -AsVT100EncodedString).VT100EncodedString
     Write-Host $styled
 } catch {
-    Write-Host "Welcome to Quackatime!"
+    Write-Host "Welcome to OtterTime!"
 }
-Write-Host "If you have any issues with this script, please file an issue at https://github.com/quackatime/extension-installer/issues.`n" -ForegroundColor DarkGray
+Write-Host "If you have any issues with this script, please file an issue at https://github.com/ottertime/extension-installer/issues.`n" -ForegroundColor DarkGray
 
 Set-Content -Path $configPath -Value $configContent
 Write-Host "✓ Wrote WakaTime config!" -ForegroundColor Green
