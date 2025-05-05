@@ -38,7 +38,6 @@ Write-Host "✓ Wrote WakaTime config!" -ForegroundColor Green
 if (Get-Command code -ErrorAction SilentlyContinue) {
     Write-Host "`n→ Installing WakaTime for VSCode..." -ForegroundColor Green
     code --install-extension $vscodeExt --force
-    Write-Host
 } else {
     Write-Host "VSCode CLI 'code' not found; skipping." -ForegroundColor DarkGray
 }
@@ -47,7 +46,6 @@ if (Get-Command code -ErrorAction SilentlyContinue) {
 if (Get-Command trae -ErrorAction SilentlyContinue) {
     Write-Host "`n→ Installing WakaTime for Trae..." -ForegroundColor Green
     trae --install-extension $vscodeExt --force
-    Write-Host
 } else {
     Write-Host "Trae CLI 'trae' not found; skipping." -ForegroundColor DarkGray
 }
@@ -56,7 +54,6 @@ if (Get-Command trae -ErrorAction SilentlyContinue) {
 if (Get-Command cursor -ErrorAction SilentlyContinue) {
     Write-Host "`n→ Installing WakaTime for Cursor..." -ForegroundColor Green
     cursor --install-extension $vscodeExt --force
-    Write-Host
 } else {
     Write-Host "Cursor CLI 'cursor' not found; skipping." -ForegroundColor DarkGray
 }
@@ -65,37 +62,32 @@ if (Get-Command cursor -ErrorAction SilentlyContinue) {
 if (Get-Command windsurf -ErrorAction SilentlyContinue) {
     Write-Host "`n→ Installing WakaTime for Windsurf..." -ForegroundColor Green
     windsurf --install-extension $vscodeExt --force
-    Write-Host
 } else {
     Write-Host "Windsurf CLI 'windsurf' not found; skipping." -ForegroundColor DarkGray
 }
 
-# Install for JetBrains IDEs (incl. Toolbox)
-$pluginId        = $jetbrainsPid
-$jetbrainsRoot   = "$env:APPDATA\JetBrains"
-$pluginRepoQuery = "https://plugins.jetbrains.com/pluginManager?action=download&id=$pluginId&build="
+# Install for JetBrains IDEs via CLI
+$ideExes = @(
+    "idea64.exe", "pycharm64.exe", "clion64.exe", "goland64.exe",
+    "webstorm64.exe", "rider64.exe", "datagrip64.exe",
+    "phpstorm64.exe", "rubymine64.exe", "appcode64.exe"
+)
 
-Write-Host "`n→ Installing WakaTime plugin for JetBrains IDEs..." -ForegroundColor Green
-
-# Scan standard JetBrains config
-if (Test-Path $jetbrainsRoot) {
-    Get-ChildItem -Path $jetbrainsRoot -Directory | ForEach-Object {
-        $ideConfig = $_.FullName
-        $pluginsDir = Join-Path $ideConfig "plugins"
-        if (-not (Test-Path $pluginsDir)) {
-            New-Item -ItemType Directory -Path $pluginsDir | Out-Null
-        }
-        # Download and extract plugin
-        $tempZip = [System.IO.Path]::GetTempFileName()
-        Invoke-WebRequest -Uri $pluginRepoQuery -OutFile $tempZip -UseBasicParsing
-        $targetDir = Join-Path $pluginsDir "WakaTime"
-        if (Test-Path $targetDir) { Remove-Item $targetDir -Recurse -Force }
-        Expand-Archive -Path $tempZip -DestinationPath $targetDir -Force
-        Remove-Item $tempZip -Force
-        Write-Host "  ✓ Installed in $($_.Name)"
+$installed = $false
+Write-Host "`n→ Installing WakaTime plugin for JetBrains IDEs via IDE CLI..." -ForegroundColor Green
+foreach ($exe in $ideExes) {
+    $cmd = Get-Command $exe -ErrorAction SilentlyContinue
+    if ($cmd) {
+        Write-Host "  → $exe found, installing..."
+        & "$($cmd.Source)" installPlugins $jetbrainsPid | Out-Null
+        Write-Host "    ✓ Installed in $exe"
+        $installed = $true
     }
-} else {
-    Write-Host "No JetBrains config directory found at $jetbrainsRoot; skipping." -ForegroundColor DarkGray
+}
+
+if (-not $installed) {
+    Write-Host "No JetBrains IDE CLI found; unable to install plugin via CLI." -ForegroundColor DarkGray
+    Write-Host "Please install WakaTime manually through your IDE's plugin manager."
 }
 
 Write-Host "`n✓ All installations complete! Please restart your IDEs to activate WakaTime." -ForegroundColor Green
