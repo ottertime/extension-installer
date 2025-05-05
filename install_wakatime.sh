@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo -e "\e[1mWelcome to Quackatime!\e[0m"
-echo -e "If you have any issues with this script, please file an issue at \e[4mhttps://github.com/quackatime/extension-installer/issues\e[0m"
+echo -e "\e[1mWelcome to OtterTime!\e[0m"
+echo -e "If you have any issues with this script, please file an issue at \e[4mhttps://github.com/ottertime/extension-installer/issues\e[0m"
 echo
 
 # Extension/Plugin identifiers
@@ -10,12 +10,12 @@ VSCODE_EXT="WakaTime.vscode-wakatime"
 JETBRAINS_PID="com.wakatime.intellij.plugin"
 
 # Get WakaTime config from env vars
-API_KEY="${QUACKATIME_API_KEY:-}"
-API_URL="${QUACKATIME_API_URL:-}"
+API_KEY="${OTTERTIME_API_KEY:-}"
+API_URL="${OTTERTIME_API_URL:-}"
 
 # Exit if required env vars are not set
 if [[ -z "$API_KEY" || -z "$API_URL" ]]; then
-  echo -e "\e[31mError: QUACKATIME_API_KEY and QUACKATIME_API_URL must be set\e[0m"
+  echo -e "\e[31mError: OTTERTIME_API_KEY and OTTERTIME_API_URL must be set\e[0m"
   exit 1
 fi
 
