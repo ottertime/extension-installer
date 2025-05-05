@@ -1,6 +1,10 @@
-# Quackatime Installer
+# OtterTime Installer
 
-This script setups a WakaTime config file and installs editor extensions, so you can get started with Quackatime with one command!
+This script setups a WakaTime config file and installs editor extensions, so you can get started with OtterTime with one command!
+
+## Quick Start
+
+Go to [OtterTime's setup page](https://ottertime.skyfall.dev/setup) to get a command you can run!
 
 ## Supported IDEs
 
