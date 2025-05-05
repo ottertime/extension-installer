@@ -77,7 +77,7 @@ else {
 $ideExes = @(
     "idea64.exe", "pycharm64.exe", "clion64.exe", "goland64.exe",
     "webstorm64.exe", "rider64.exe", "datagrip64.exe",
-    "phpstorm64.exe", "rubymine64.exe", "appcode64.exe"
+    "phpstorm64.exe", "rubymine64.exe", "appcode64.exe", "datagrip64.exe"
 )
 
 $jetbrainsFound = $false
