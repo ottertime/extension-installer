@@ -54,16 +54,17 @@ install_vscode_ext windsurf
 
 # 5. JetBrains IDEs
 JETBRAINS_EXES=(
-  idea       # IntelliJ IDEA
-  pycharm    # PyCharm
-  clion      # CLion
-  goland     # GoLand
-  webstorm   # WebStorm
-  rider      # Rider
-  datagrip   # DataGrip
-  phpstorm   # PhpStorm
-  rubymine   # RubyMine
-  appcode    # AppCode
+  idea
+  pycharm
+  clion
+  goland
+  webstorm
+  rider
+  datagrip
+  phpstorm
+  rubymine
+  appcode
+  rustrover
 )
 
 found_jetbrains=false
