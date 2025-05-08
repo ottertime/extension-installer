@@ -56,6 +56,8 @@ install_vscode_ext windsurf
 JETBRAINS_EXES=(
   idea
   pycharm
+  pycharm1 # PyCharm's binary names on Linux are cursed :p
+  pycharm2 # Thank you Emma for finding the correct ones!
   clion
   goland
   webstorm
